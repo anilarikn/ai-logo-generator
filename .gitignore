@@ -1,0 +1,8 @@
+# Backend Python env & cache
+backend/api/venv/
+backend/api/__pycache__/
+backend/api/**/*.pyc
+
+# Local env & secrets
+backend/api/.env
+backend/api/credentials/
