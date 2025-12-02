@@ -2,10 +2,21 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from core.dependencies import get_job_service
 from core import errors
+from domain.job import Job
 from models.schemas import GenerateRequest, JobResponse
 from services.jobs_service import JobService
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
+
+
+def _to_response(job: Job) -> JobResponse:
+    return JobResponse(
+        job_id=job.id,
+        prompt=job.prompt,
+        style=job.style,
+        status=job.status,
+        image_url=job.image_url,
+    )
 
 
 @router.post("/generate", response_model=JobResponse, status_code=status.HTTP_201_CREATED)
@@ -14,7 +25,8 @@ def generate_logo(
     service: JobService = Depends(get_job_service),
 ):
     try:
-        return service.create_job(req)
+        job = service.create_job(req)
+        return _to_response(job)
     except errors.JobPersistenceError:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -28,7 +40,8 @@ def get_job(
     service: JobService = Depends(get_job_service),
 ):
     try:
-        return service.get_job(job_id)
+        job = service.get_job(job_id)
+        return _to_response(job)
     except errors.JobNotFoundError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
