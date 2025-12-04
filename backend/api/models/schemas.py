@@ -11,4 +11,3 @@ class JobResponse(BaseModel):
     style: str
     status: str
     image_url: Optional[str] = None
-    webhook_url: Optional[str] = None
