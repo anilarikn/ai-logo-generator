@@ -1,8 +1,54 @@
-# Backend Python env & cache
+# =========================
+#  Backend (Python)
+# =========================
 backend/api/venv/
 backend/api/__pycache__/
 backend/api/**/*.pyc
-
-# Local env & secrets
 backend/api/.env
 backend/api/credentials/
+
+# =========================
+#  Mobile App (Expo / React Native)
+# =========================
+mobile/Hexa-AI/.env
+mobile/Hexa-AI/.expo/
+mobile/Hexa-AI/.expo-shared/
+mobile/Hexa-AI/dist/
+mobile/Hexa-AI/build/
+mobile/Hexa-AI/web-build/
+mobile/Hexa-AI/node_modules/
+
+# Logs
+mobile/Hexa-AI/*.log
+mobile/Hexa-AI/logs/
+
+# iOS / Android native folders (Expo eject edilirse oluşur)
+mobile/Hexa-AI/android/
+mobile/Hexa-AI/ios/
+
+# Metro & RN cache
+mobile/Hexa-AI/.cache/
+mobile/Hexa-AI/.metro/
+mobile/Hexa-AI/metro-cache/
+
+# TypeScript cache
+mobile/Hexa-AI/*.tsbuildinfo
+
+# =========================
+#  OS Files
+# =========================
+.DS_Store
+
+# =========================
+#  Editors
+# =========================
+.vscode/
+.idea/
+
+# =========================
+#  NPM / Yarn debug logs
+# =========================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
