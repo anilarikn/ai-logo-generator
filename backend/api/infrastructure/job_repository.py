@@ -35,7 +35,7 @@ class FirebaseJobRepository(JobRepository):
         data = {
             constants.FIELD_PROMPT: prompt,
             constants.FIELD_STYLE: style,
-            constants.FIELD_STATUS: constants.STATUS_QUEUED,
+            constants.FIELD_STATUS: constants.STATUS_PROCESSING,
             constants.FIELD_IMAGE_URL: None,
             constants.FIELD_CREATED_AT: now,
             constants.FIELD_UPDATED_AT: now,

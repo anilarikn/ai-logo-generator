@@ -9,3 +9,5 @@ STATUS_QUEUED = "queued"
 STATUS_PROCESSING = "processing"
 STATUS_COMPLETED = "completed"
 STATUS_FAILED = "failed"
+
+FAILURE_RATE = 0.3

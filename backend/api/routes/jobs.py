@@ -52,3 +52,21 @@ def get_job(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Temporary error while fetching job"
         )
+
+@router.post("/internal/{job_id}/process", status_code=status.HTTP_204_NO_CONTENT)
+def process_job(
+    job_id: str,
+    service: JobService = Depends(get_job_service),
+):
+    try:
+        service.process_job(job_id)
+    except errors.JobNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Job not found"
+        )
+    except errors.JobPersistenceError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Temporary error while processing job"
+        )
