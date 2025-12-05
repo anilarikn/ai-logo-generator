@@ -58,7 +58,7 @@ backend/api/
 Production (Cloud Run):
 
 ```text
-https://ai-logo-api-skcaxavxpq-ew.a.run.app
+https://ai-logo-api-771612782970.europe-west1.run.app
 ```
 
 📡 REST API
