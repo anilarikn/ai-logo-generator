@@ -14,6 +14,7 @@ type BannerProps = {
   title: string;
   subtitle?: string;
   loading?: boolean;
+  successImageUrl?: string,
   onPress?: () => void;
 };
 
@@ -24,6 +25,7 @@ export default function Banner({
   title,
   subtitle,
   loading = false,
+  successImageUrl,
   onPress,
 }: BannerProps) {
   const theme = colors.banner[variant];
@@ -37,7 +39,14 @@ export default function Banner({
       return <Image source={ERROR_ICON} style={styles.iconImage} />;
     }
 
-    return null;
+    if (variant === 'success' && successImageUrl) {
+      return (
+        <Image
+          source={{ uri: successImageUrl }}
+          style={styles.thumbnail}
+        />
+      );
+    }
   };
 
   const showLeft = true;
@@ -104,5 +113,11 @@ const styles = StyleSheet.create({
   subtitle: {
     marginTop: 2,
     fontSize: 13,
+  },
+  thumbnail: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    resizeMode: 'cover',
   },
 });

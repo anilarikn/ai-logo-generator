@@ -2,7 +2,7 @@ import { LogoStyle } from './types';
 
 export const LOGO_STYLES: LogoStyle[] = [
   {
-    id: 'none',
+    id: 'no-style',
     label: 'No Style',
     icon: require('../../assets/img/styles/no_style.png'),
   },

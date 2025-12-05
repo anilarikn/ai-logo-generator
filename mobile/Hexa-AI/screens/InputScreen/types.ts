@@ -1,6 +1,7 @@
-import { ImageSourcePropType } from 'react-native';
+import { ImageSourcePropType, Task } from 'react-native';
+import { TaskStatus } from '../../services/logoGenerateService';
 
-export type GenerationStatus = 'idle' | 'processing' | 'done' | 'failed';
+export type GenerationStatus = 'idle' | TaskStatus;
 
 export type LogoStyle = {
   id: string;

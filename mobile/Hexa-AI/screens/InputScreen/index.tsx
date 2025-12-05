@@ -1,51 +1,43 @@
-import React, { useState } from 'react';
+import React from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   FlatList,
-  ImageSourcePropType,
   KeyboardAvoidingView,
   Platform,
   Pressable,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import TextArea from '../../components/ui/TextArea';
-import PrimaryButton from '../../components/ui/PrimaryButton';
-import StyleCard from '../../components/ui/StyleCard';
-import Banner from '../../components/ui/Banner';
-import { colors } from '../../theme/colors';
+import TextArea from "../../components/ui/TextArea";
+import PrimaryButton from "../../components/ui/PrimaryButton";
+import StyleCard from "../../components/ui/StyleCard";
+import Banner from "../../components/ui/Banner";
+import { colors } from "../../theme/colors";
 
-import { GenerationStatus, LogoStyle } from './types';
-import { LOGO_STYLES, SURPRISE_PROMPTS } from './constants';
+import { LogoStyle } from "./types";
+import { LOGO_STYLES } from "./constants";
+import { useLogoGenerator } from "../../hooks/useLogoGenerator";
 
 export default function LogoGeneratorScreen() {
-  const [prompt, setPrompt] = useState('');
-  const [selectedStyle, setSelectedStyle] = useState<LogoStyle>(LOGO_STYLES[0]);
-  const [status, setStatus] = useState<GenerationStatus>('idle');
-
-  const handleGenerate = () => {
-    if (!prompt.trim()) {
-      return;
-    }
-
-    setStatus('processing');
-
-    setTimeout(() => {
-      const isSuccess = Math.random() > 0.25;
-      setStatus(isSuccess ? 'done' : 'failed');
-    }, 2000);
-  };
-
-  const handleSurprisePress = () => {
-    const randomIndex = Math.floor(Math.random() * SURPRISE_PROMPTS.length);
-    setPrompt(SURPRISE_PROMPTS[randomIndex]);
-  };
+  const {
+    prompt,
+    selectedStyle,
+    status,
+    resultImageUrl,
+    isProcessing,
+    canSubmit,
+    handleChangePrompt,
+    handleSelectStyle,
+    handleGenerate,
+    handleRetry,
+    handleSurprisePress,
+  } = useLogoGenerator();
 
   const renderBanner = () => {
-    if (status === 'processing') {
+    if (status === "queued" || status === "processing") {
       return (
         <Banner
           variant="info"
@@ -56,22 +48,24 @@ export default function LogoGeneratorScreen() {
       );
     }
 
-    if (status === 'done') {
+    if (status === "done") {
       return (
         <Banner
           variant="success"
           title="Your Design is Ready!"
           subtitle="Tap to view it."
+          successImageUrl={resultImageUrl || undefined}
         />
       );
     }
 
-    if (status === 'failed') {
+    if (status === "failed") {
       return (
         <Banner
           variant="error"
           title="Oops, something went wrong!"
           subtitle="Tap to retry."
+          onPress={handleRetry}
         />
       );
     }
@@ -85,16 +79,16 @@ export default function LogoGeneratorScreen() {
       subtitle={item.subtitle}
       icon={item.icon}
       selected={item.id === selectedStyle.id}
-      onPress={() => setSelectedStyle(item)}
+      onPress={() => handleSelectStyle(item)}
     />
   );
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <View style={styles.container}>
         <KeyboardAvoidingView
           style={styles.flex}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
           <ScrollView
             style={styles.flex}
@@ -122,7 +116,7 @@ export default function LogoGeneratorScreen() {
 
               <TextArea
                 value={prompt}
-                onChangeText={setPrompt}
+                onChangeText={handleChangePrompt}
                 placeholder="A blue lion logo reading 'HEXA' in bold letters"
               />
 
@@ -150,8 +144,8 @@ export default function LogoGeneratorScreen() {
           <PrimaryButton
             title="Create"
             onPress={handleGenerate}
-            loading={status === 'processing'}
-            disabled={!prompt.trim()}
+            loading={isProcessing}
+            disabled={!canSubmit}
           />
         </View>
       </View>
@@ -173,32 +167,32 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingTop: 10,
   },
   appTitle: {
     color: colors.textPrimary,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   scrollContent: {
     paddingBottom: 24,
   },
   sectionHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginTop: 24,
     marginBottom: 8,
   },
   sectionTitle: {
     color: colors.textPrimary,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   surpriseButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   surpriseEmoji: {
     fontSize: 10,
