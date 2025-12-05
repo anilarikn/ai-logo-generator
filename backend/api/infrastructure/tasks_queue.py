@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from time import time
 from datetime import datetime, timedelta, timezone
 import json
+import random
 from typing import Dict
 
 from google.cloud import tasks_v2
@@ -42,7 +43,7 @@ class CloudTasksQueue(TaskQueue):
             }
         }
 
-        delay_seconds = settings.job_delay_seconds
+        delay_seconds = random.randint(settings.job_delay_min, settings.job_delay_max)
 
         schedule_timestamp = time() + delay_seconds
         schedule_time_proto = timestamp_pb2.Timestamp(seconds=int(schedule_timestamp))
