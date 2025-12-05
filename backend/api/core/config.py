@@ -26,8 +26,8 @@ class Settings:
     gcs_bucket: str = os.getenv("GCS_BUCKET")
     gcs_base_logo_blob: str = os.getenv("GCS_BASE_LOGO_BLOB", "default-base-image.jpg")
 
-    job_delay_min: int = int(os.getenv("JOB_DELAY_SECONDS", "30"))
-    job_delay_max: int = int(os.getenv("JOB_DELAY_SECONDS", "60"))
+    job_delay_min: int = int(os.getenv("JOB_DELAY_MIN", "30"))
+    job_delay_max: int = int(os.getenv("JOB_DELAY_MAX", "60"))
 
 
     def __init__(self) -> None:
