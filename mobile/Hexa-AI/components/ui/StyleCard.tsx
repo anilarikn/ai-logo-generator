@@ -12,7 +12,7 @@ import { colors } from '../../theme/colors';
 type StyleCardProps = {
   label: string;
   subtitle?: string;
-  icon: ImageSourcePropType;
+  icon: string | ImageSourcePropType;
   selected?: boolean;
   onPress?: () => void;
 };
@@ -27,6 +27,11 @@ export default function StyleCard({
   selected = false,
   onPress,
 }: StyleCardProps) {
+  const source =
+    typeof icon === 'string'
+      ? { uri: icon }
+      : icon;
+
   return (
     <Pressable
       style={({ pressed }) => [
@@ -36,7 +41,7 @@ export default function StyleCard({
       onPress={onPress}
     >
       <View style={[styles.card, selected && styles.cardSelected]}>
-        <Image source={icon} style={styles.icon} />
+        <Image source={source} style={styles.icon} />
       </View>
 
       <Text

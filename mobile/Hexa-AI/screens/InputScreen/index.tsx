@@ -10,8 +10,8 @@ import {
   Pressable,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import GradientBackground from "../../components/layout/GradientBackground";
 import TextArea from "../../components/ui/TextArea";
@@ -20,23 +20,19 @@ import StyleCard from "../../components/ui/StyleCard";
 import Banner from "../../components/ui/Banner";
 import { colors } from "../../theme/colors";
 
-import type { LogoStackParamList } from '../../navigation/LogoFlowNavigator';
-
-
-import { LogoStyle } from "./types";
-import { LOGO_STYLES } from "./constants";
+import type { LogoStackParamList } from "../../navigation/LogoFlowNavigator";
+import { LogoStyle } from "../../services/styleService";
 
 import { useLogoGenerator } from "../../hooks/useLogoGenerator";
 
-type LogoNav = NativeStackNavigationProp<LogoStackParamList, 'Input'>;
-
+type LogoNav = NativeStackNavigationProp<LogoStackParamList, "Input">;
 
 export default function LogoGeneratorScreen() {
-
   const navigation = useNavigation<LogoNav>();
 
   const {
     prompt,
+    styles: logoStyles,
     selectedStyle,
     status,
     resultImageUrl,
@@ -69,11 +65,11 @@ export default function LogoGeneratorScreen() {
           subtitle="Tap to see it."
           successImageUrl={resultImageUrl || undefined}
           onPress={() => {
-            if (!resultImageUrl) return;
+            if (!resultImageUrl || !selectedStyle) return;
 
-            navigation.navigate('Output', {
+            navigation.navigate("Output", {
               prompt,
-              styleLabel: selectedStyle.id,
+              styleLabel: selectedStyle.label,
               imageUrl: resultImageUrl,
             });
           }}
@@ -98,9 +94,9 @@ export default function LogoGeneratorScreen() {
   const renderStyleItem = ({ item }: { item: LogoStyle }) => (
     <StyleCard
       label={item.label}
-      subtitle={item.subtitle}
+      subtitle={item.subtitle || undefined}
       icon={item.icon}
-      selected={item.id === selectedStyle.id}
+      selected={selectedStyle?.id === item.id}
       onPress={() => handleSelectStyle(item)}
     />
   );
@@ -150,7 +146,7 @@ export default function LogoGeneratorScreen() {
 
               <View style={styles.stylesCarouselWrapper}>
                 <FlatList
-                  data={LOGO_STYLES}
+                  data={logoStyles}
                   keyExtractor={(item) => item.id}
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -174,7 +170,7 @@ export default function LogoGeneratorScreen() {
         </View>
       </SafeAreaView>
     </GradientBackground>
-    );
+  );
 }
 
 const styles = StyleSheet.create({

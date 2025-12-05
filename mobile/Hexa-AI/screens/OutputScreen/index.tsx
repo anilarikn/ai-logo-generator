@@ -19,7 +19,7 @@ import { LogoStackParamList } from '../../navigation/LogoFlowNavigator';
 type OutputRouteProp = RouteProp<LogoStackParamList, 'Output'>;
 
 const { width } = Dimensions.get('window');
-const IMAGE_SIZE = width - 48; // ekranın kenarlarından ~24px boşluk
+const IMAGE_SIZE = width - 48;
 
 export default function OutputScreen() {
   const navigation = useNavigation();
@@ -85,13 +85,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingBottom: 24,
+    paddingBottom: 18,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: 20,
   },
   headerTitle: {
     color: colors.textPrimary,

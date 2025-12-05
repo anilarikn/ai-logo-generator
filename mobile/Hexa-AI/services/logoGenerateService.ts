@@ -10,6 +10,7 @@ export type GenerateLogoPayload = {
 export type GenerateLogoResponse = {
   job_id: string;
   status: TaskStatus;
+  image_url?: string | null;
 };
 
 export type TaskDetailResponse = {

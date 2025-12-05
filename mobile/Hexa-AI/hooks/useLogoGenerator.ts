@@ -1,65 +1,117 @@
-import { useEffect, useState } from "react";
-import { generateLogo, fetchTask } from "../services/logoGenerateService";
-import { GenerationStatus, LogoStyle } from "../screens/InputScreen/types";
-import { LOGO_STYLES, SURPRISE_PROMPTS } from "../screens/InputScreen/constants";
+import { useEffect, useMemo, useState } from 'react';
+import { generateLogo, fetchTask } from '../services/logoGenerateService';
+import { fetchStyles, type LogoStyle } from '../services/styleService';
 
-type UseLogoGenerationReturn = {
+export type GenerationStatus =
+  | 'idle'
+  | 'queued'
+  | 'processing'
+  | 'done'
+  | 'failed';
+
+const SURPRISE_PROMPTS = [
+  'A futuristic tech company logo with sleek lines',
+  'A vintage coffee shop logo with a rustic feel',
+  "A playful children’s brand logo with bright colors",
+  'An elegant fashion brand logo with minimalist design',
+];
+
+type UseLogoGeneratorReturn = {
   prompt: string;
-  selectedStyle: LogoStyle;
+  styles: LogoStyle[];
+  selectedStyle: LogoStyle | null;
   status: GenerationStatus;
   resultImageUrl: string | null;
   isProcessing: boolean;
   canSubmit: boolean;
-  handleChangePrompt: (value: string) => void;
+  handleChangePrompt: (text: string) => void;
   handleSelectStyle: (style: LogoStyle) => void;
   handleGenerate: () => Promise<void>;
-  handleRetry: () => void;
+  handleRetry: () => Promise<void>;
   handleSurprisePress: () => void;
 };
 
-export function useLogoGenerator(): UseLogoGenerationReturn {
-  const [prompt, setPrompt] = useState("");
-  const [selectedStyle, setSelectedStyle] = useState<LogoStyle>(LOGO_STYLES[0]);
-  const [status, setStatus] = useState<GenerationStatus>("idle");
+export function useLogoGenerator(): UseLogoGeneratorReturn {
+  const [prompt, setPrompt] = useState('');
+  const [styles, setStyles] = useState<LogoStyle[]>([]);
+  const [selectedStyle, setSelectedStyle] = useState<LogoStyle | null>(null);
+  const [status, setStatus] = useState<GenerationStatus>('idle');
   const [taskId, setTaskId] = useState<string | null>(null);
   const [resultImageUrl, setResultImageUrl] = useState<string | null>(null);
 
-  const handleChangePrompt = (value: string) => {
-    setPrompt(value);
+  useEffect(() => {
+    let active = true;
+
+    (async () => {
+      try {
+        const data = await fetchStyles();
+        if (!active) return;
+
+        setStyles(data);
+
+        if (!selectedStyle && data.length > 0) {
+          setSelectedStyle(data[0]);
+        }
+      } catch (error) {
+        console.error('Failed to load styles', error);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+
+  }, []);
+
+  const isProcessing = status === 'queued' || status === 'processing';
+  const canSubmit = useMemo(
+    () => !!prompt.trim() && !!selectedStyle && !isProcessing,
+    [prompt, selectedStyle, isProcessing],
+  );
+
+  const handleChangePrompt = (text: string) => {
+    setPrompt(text);
   };
 
   const handleSelectStyle = (style: LogoStyle) => {
     setSelectedStyle(style);
   };
 
-  const handleGenerate = async () => {
-    if (!prompt.trim()) return;
+  const internalGenerate = async () => {
+    if (!prompt.trim() || !selectedStyle) return;
 
     try {
-      setStatus("processing");
+      setStatus('processing');
       setResultImageUrl(null);
 
       const response = await generateLogo({
         prompt,
-        style: selectedStyle.id === "none" ? null : selectedStyle.id,
+        style: selectedStyle.id,
       });
 
       setTaskId(response.job_id);
 
-      if (response.status === "queued" || response.status === "processing") {
-        setStatus("processing");
-      } else if (response.status === "done" || response.status === "failed") {
+      if (response.status === 'queued' || response.status === 'processing') {
+        setStatus('processing');
+      } else if (response.status === 'done' || response.status === 'failed') {
         setStatus(response.status);
+        setResultImageUrl(response.image_url ?? null);
       }
-    } catch {
-      setStatus("failed");
+    } catch (error) {
+      console.error('generateLogo failed', error);
+      setStatus('failed');
     }
   };
 
-  const handleRetry = () => {
-    if (!prompt.trim()) return;
-    setStatus("processing");
-    void handleGenerate();
+  const handleGenerate = async () => {
+    if (!canSubmit) return;
+    await internalGenerate();
+  };
+
+  const handleRetry = async () => {
+    if (!prompt.trim() || !selectedStyle) return;
+    setStatus('processing');
+    await internalGenerate();
   };
 
   const handleSurprisePress = () => {
@@ -69,25 +121,25 @@ export function useLogoGenerator(): UseLogoGenerationReturn {
 
   useEffect(() => {
     if (!taskId) return;
-    if (status !== "processing") return;
+    if (status !== 'processing') return;
 
     let isActive = true;
 
     const intervalId = setInterval(async () => {
       try {
         const task = await fetchTask(taskId);
-
         if (!isActive) return;
 
-        if (task.status === "done" || task.status === "failed") {
+        if (task.status === 'done' || task.status === 'failed') {
           setStatus(task.status);
           setResultImageUrl(task.image_url || null);
           clearInterval(intervalId);
-        } else if (task.status === "queued" || task.status === "processing") {
-          setStatus("processing");
+        } else if (task.status === 'queued' || task.status === 'processing') {
+          setStatus('processing');
         }
-      } catch {
+      } catch (error) {
         if (!isActive) return;
+        console.error('fetchTask failed', error);
       }
     }, 2000);
 
@@ -97,12 +149,9 @@ export function useLogoGenerator(): UseLogoGenerationReturn {
     };
   }, [taskId, status]);
 
-  const isProcessing =
-    status === "processing" || status === "queued" || status === undefined;
-  const canSubmit = !!prompt.trim();
-
   return {
     prompt,
+    styles,
     selectedStyle,
     status,
     resultImageUrl,
