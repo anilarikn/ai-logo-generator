@@ -6,56 +6,30 @@ Asynchronous Image Generation Simulation Backend
 
 ## 🚀 Overview
 
-AI Logo Generator Backend is a modern, scalable API service designed for a React Native mobile app. Instead of running a real AI model, this backend simulates asynchronous AI logo generation using:
+**AI Logo Generator Backend** is a modern, scalable API service built for a React Native mobile app.  
+Instead of running a real AI model, this backend **simulates asynchronous AI logo generation** on Google Cloud:
 
-- Google Cloud Tasks (delayed background processing)
-- Google Firestore (database for jobs & styles)
-- Google Cloud Storage (placeholder-based image generation)
-- FastAPI (clean, maintainable Python backend)
+- **Google Cloud Run** – containerized, auto-scaling, HTTPS-enabled deployment
+- **Google Cloud Tasks** – delayed background processing
+- **Google Firestore** – database for jobs & styles
+- **Google Cloud Storage** – placeholder-based image “generation”
+- **FastAPI** – clean, type-safe Python backend
 
-Flow:
+High-level flow:
 
-1. Client calls POST /jobs/generate  
-2. Job is stored in Firestore  
-3. Cloud Task is scheduled (45–60 seconds delay)  
-4. Cloud Task triggers internal endpoint /jobs/internal/{job_id}/process  
-5. Logo image is created by copying a placeholder  
-6. Job updates: queued → processing → done  
-7. Client polls GET /jobs/{job_id} until ready  
-
----
-
-## 📁 Project Structure
-
-backend/api/  
-├── core/  
-│   ├── config.py  
-│   ├── constants.py  
-│   ├── dependencies.py  
-│   ├── errors.py  
-├── domain/  
-│   ├── job.py  
-│   ├── style.py  
-├── infrastructure/  
-│   ├── job_repository.py  
-│   ├── styles_repository.py  
-│   ├── tasks_queue.py  
-│   ├── image_storage.py  
-├── models/  
-│   ├── schemas.py  
-├── routes/  
-│   ├── jobs.py  
-│   ├── styles.py  
-├── .env  
-├── Dockerfile  
-├── main.py  
-└── requirements.txt  
+1. Client calls **`POST /jobs/generate`**  
+2. A job document is created in **Firestore**  
+3. A **Cloud Task** is scheduled (e.g. 45–60 seconds delay)  
+4. Cloud Task hits an **internal endpoint** `POST /jobs/internal/{job_id}/process`  
+5. Backend “generates” the logo by **copying a placeholder** image in Cloud Storage  
+6. Job status is updated: `queued → processing → done`  
+7. Client polls **`GET /jobs/{job_id}`** until the image is ready  
 
 ---
 
-## 🌐 Base URL
+## 🌐 Live Base URL (Cloud Run)
 
-Production (Cloud Run):
+The backend is deployed on **Google Cloud Run**:
 
 ```text
 https://ai-logo-api-771612782970.europe-west1.run.app
@@ -63,47 +37,35 @@ https://ai-logo-api-771612782970.europe-west1.run.app
 
 📡 REST API
 
-```1. Generate Logo```
-
+```
 POST /jobs/generate
-
-Request Body
+```
+Response – 201 Created (initial)
 
 {
   "prompt": "Cute koala mascot logo for a mobile app",
   "style": "neon"
 }
 
-Response (201 Created)
+Response – After Processing
 
 {
   "job_id": "1OCmYNMdeklYgWauYkZ6",
   "prompt": "Cute koala mascot logo for a mobile app",
   "style": "neon",
-  "status": "queued",
-  "image_url": null
-}
-
-Later (after processing):
-
-{
-  "job_id": "1OCmYNMdeklYgWauYkZ6",
-  "prompt": "Cute koala mascot logo for a mobile app",
-  "style": "neon",
-  "status": "completed",
+  "status": "done",
   "image_url": "https://storage.googleapis.com/your-bucket/generated-logos/1OCmYNMdeklYgWauYkZ6.png"
 }
 
-
-```2. Get Job Status```
-
+```
 GET /jobs/{job_id}
+```
+- Example
 
-Example
+GET https://ai-logo-api-771612782970.europe-west1.run.app/jobs/1OCmYNMdeklYgWauYkZ6
 
-GET /jobs/1OCmYNMdeklYgWauYkZ6
 
--- Possible status values
+* Possible status values
 
 - queued – job is created, waiting for processing
 
@@ -111,20 +73,12 @@ GET /jobs/1OCmYNMdeklYgWauYkZ6
 
 - done – logo is ready, image_url is available
 
-- failed – if something goes wrong
+- failed – something went wrong during processing (Failure rate: %30 for testing)
 
-```3. List Active Styles```
-
-Styles are stored in Firestore in a styles collection.
-Only documents with active == true are returned.
-
-Endpoint
-
+```
 GET /styles
-
-
-Response Example
-
+```
+- Example Response
 [
   {
     "id": "flat",
@@ -139,3 +93,37 @@ Response Example
     "active": true
   }
 ]
+
+
+
+```
+🧱 Project Structure
+```
+backend/api/
+├── core/
+│   ├── config.py           # Settings, environment variables, GCP config
+│   ├── constants.py        # Shared string/field constants
+│   ├── dependencies.py     # FastAPI dependencies (Firestore, repos, etc.)
+│   ├── errors.py           # Custom exceptions & error mapping
+│
+├── domain/
+│   ├── job.py              # Job domain model & business rules
+│   ├── style.py            # Style domain model
+│
+├── infrastructure/
+│   ├── job_repository.py   # Firestore integration for jobs
+│   ├── styles_repository.py# Firestore integration for styles
+│   ├── tasks_queue.py      # Cloud Tasks client & enqueue logic
+│   ├── image_storage.py    # Cloud Storage (placeholder → generated logo copy)
+│
+├── models/
+│   ├── schemas.py          # Pydantic request/response schemas
+│
+├── routes/
+│   ├── jobs.py             # /jobs endpoints
+│   ├── styles.py           # /styles endpoints
+│
+├── .env                    # Local environment variables (not committed)
+├── Dockerfile              # Container image definition for Cloud Run
+├── main.py                 # FastAPI app entrypoint
+└── requirements.txt        # Python dependencies
