@@ -11,3 +11,10 @@ STATUS_DONE = "done"
 STATUS_FAILED = "failed"
 
 FAILURE_RATE = 0.3
+
+FIELD_STYLE_LABEL = "label"
+FIELD_STYLE_SLUG = "slug"
+FIELD_STYLE_IMAGE_URL = "image_url"
+FIELD_STYLE_ACTIVE = "active"
+FIELD_STYLE_ORDER = "order"
+FIELD_STYLE_CREATED_AT = "createdAt"

@@ -17,6 +17,9 @@ class Settings:
 
     gcp_project_id: str = os.getenv("GCP_PROJECT_ID")
     firestore_collection: str = os.getenv("FIRESTORE_COLLECTION")
+
+    styles_collection: str = os.getenv("STYLES_COLLECTION")
+
     gcp_location: str = os.getenv("GCP_LOCATION", "europe-west1")
     tasks_queue: str = os.getenv("TASKS_QUEUE")
 

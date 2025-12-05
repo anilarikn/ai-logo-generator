@@ -4,3 +4,7 @@ class JobNotFoundError(Exception):
 
 class JobPersistenceError(Exception):
     pass
+
+
+class StylePersistenceError(RuntimeError):
+    pass
