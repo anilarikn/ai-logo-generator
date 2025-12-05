@@ -53,7 +53,7 @@ class JobService:
         updated = self._repo.update_job(
             job_id,
             {
-                constants.FIELD_STATUS: constants.STATUS_COMPLETED,
+                constants.FIELD_STATUS: constants.STATUS_DONE,
                 constants.FIELD_IMAGE_URL: image_url,
             },
         )
