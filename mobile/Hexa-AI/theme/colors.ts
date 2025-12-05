@@ -16,11 +16,11 @@ export const colors = {
 
   banner: {
     info: {
-      bg: '#111827',
-      leftBg: '#050816',
+      bg: '#27272A',
+      leftBg: '#18181B',
       icon: '#FFFFFF',
       text: '#FFFFFF',
-      subtitle: 'rgba(255, 255, 255, 0.8)',
+      subtitle: 'rgba(255, 255, 255, 0.7)',
     },
     success: {
       bg: '#7C3AED',

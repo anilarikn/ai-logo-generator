@@ -56,7 +56,7 @@ export default function LogoGeneratorScreen() {
           variant="info"
           loading
           title="Creating Your Design..."
-          subtitle="This usually takes under 2 minutes."
+          subtitle="Ready in 2 minutes."
         />
       );
     }
@@ -66,7 +66,7 @@ export default function LogoGeneratorScreen() {
         <Banner
           variant="success"
           title="Your Design is Ready!"
-          subtitle="Tap to view it."
+          subtitle="Tap to see it."
           successImageUrl={resultImageUrl || undefined}
           onPress={() => {
             if (!resultImageUrl) return;
@@ -86,7 +86,7 @@ export default function LogoGeneratorScreen() {
         <Banner
           variant="error"
           title="Oops, something went wrong!"
-          subtitle="Tap to retry."
+          subtitle="Click to try again"
           onPress={handleRetry}
         />
       );
